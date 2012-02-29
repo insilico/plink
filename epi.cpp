@@ -18,6 +18,11 @@
 #include <cmath>
 #include <algorithm>
 #include <map>
+#include <cfloat>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #include "plink.h"
 #include "options.h"
@@ -207,8 +212,16 @@ void Plink::calcEpistasis()
 
   //////////////////////////////////////////
   // Begin iterating over pairs : SET x SET
-  
-  for (int e1=0;e1<nl_all;e1++)
+   int e1, e2;
+#ifdef _OPENMP
+   // OpenMP parallelization of this outer loop
+   int numThreads = omp_get_num_threads();
+   int numProcs = omp_get_num_procs();
+   cout << "\t\t" << numThreads << " OpenMP threads available" << endl;
+   cout << "\t\t" << numProcs << " OpenMP processors available" << endl;
+   #pragma omp parallel for schedule(dynamic, 1) private(e1, e2)
+#endif
+  for (e1=0;e1<nl_all;e1++)
     {
       if (sA[e1]) 
 	{
@@ -219,7 +232,7 @@ void Plink::calcEpistasis()
 	      cout.flush();
 	    }
 	  
-	  for (int e2=0;e2<nl_all;e2++)
+	  for (e2=0;e2<nl_all;e2++)
 	    {
 
 	      ///////////////////////////////////////////
@@ -576,7 +589,16 @@ void Plink::calcEpistasis()
 		   // Obtain estimates and statistic
 
 		   lm->testParameter = 3; // interaction
-		   vector_t b = lm->getCoefs();
+		   vector_t b;
+#ifdef _OPENMP
+#pragma omp critical
+			{
+#endif
+				b = lm->getCoefs();
+#ifdef _OPENMP
+			}
+#endif
+
 		   double chisq = lm->getStatistic();
 		   double pvalue = chiprobP(chisq,1);
 		   double z = sqrt(chisq);

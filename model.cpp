@@ -183,6 +183,14 @@ void Model::addCovariate(int c)
 
 }
 
+void Model::addNumeric(int n)
+{
+  numeric.push_back(n);      
+
+  type.push_back( NUMERIC );
+  order.push_back( numeric.size() - 1 );
+
+}
 void Model::addHaplotypeDosage(set<int> & h)
 {
   haplotype.push_back(h);
@@ -229,6 +237,7 @@ void Model::buildDesignMatrix()
     + dominance.size() 
     + haplotype.size()
     + covariate.size() 
+    + numeric.size() 
     + interaction.size(); 
   
   // Sex effect?
@@ -272,6 +281,7 @@ void Model::buildDesignMatrix()
       // 4) Covariates
       // 5) Interactions of the above
       // 6) QFAM variables
+      // 7) Numeric attributes
 
       // Populate this vector with terms for this
       // individual
@@ -310,6 +320,9 @@ void Model::buildDesignMatrix()
 	      break;
 	    case QFAM :
 	      trow[p] = buildQFAM( person );
+	      break;
+	    case NUMERIC :
+	      trow[p] = buildNumeric(person, order[p] );
 	      break;
 
 	    }
@@ -821,6 +834,16 @@ double Model::buildCovariate(Individual * person, int j)
   // Covariates
   
   return person->clist[covariate[j]];
+      
+}
+
+double Model::buildNumeric(Individual * person, int j)
+{
+
+  /////////////
+  // Numeric attributes
+
+  return person->nlist[numeric[j]];
       
 }
 

@@ -353,12 +353,14 @@ class par {
 
   static bool pheno_file;
   static bool covar_file;
+  static bool numeric_file;
   static bool clist;
   static bool no_show_covar;
   static bool dump_covar;
   static bool dump_covar_with_phenotype;
   static bool dump_covar_dummy_coding;
   static bool filter_on_covar;
+  static int nlist_number;
   static int clist_number;
   static int plist_number;
 
@@ -378,6 +380,11 @@ class par {
   static bool make_pheno_present;
 
   static bool dump_clst;
+
+  static bool nlist_selection;
+  static bool nlist_selection_name;
+  static bool nlist_selection_number;
+  static string nlist_selection_string;
 
   static bool clist_selection; 
   static bool clist_selection_name; 
@@ -402,6 +409,7 @@ class par {
 
   static string pheno_filename;
   static string covar_filename;
+  static string nlist_filename;
   static string clist_filename;
   static string filter_filename;
 

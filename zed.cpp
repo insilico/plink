@@ -37,13 +37,6 @@ void ZInput::open(string f, bool cmode)
   filename = f;
   compressed = cmode;
 
-#ifndef WITH_ZLIB
-  if ( compressed )
-    {
-      error("ZLIB support is not currently compiled in");
-    }
-#endif  
-
   if ( compressed )
     {
       zinf.open( filename.c_str() );
@@ -132,14 +125,6 @@ void ZOutput::open(string f, bool cmode)
   filename = f;
   compressed = cmode;
 
-#ifndef WITH_ZLIB
-  if ( compressed )
-    {
-      PP->printLOG("Warning: ZLIB support not enabled, so writing uncompressed file\n");
-      compressed = false;
-    }
-#endif  
-
   if ( compressed )
     {
       zoutf.open( filename.c_str() );
@@ -201,10 +186,6 @@ void ZOutput::unbuffered()
 void fileCompress()
 {
 
-#ifndef WITH_ZLIB
-  error("ZLIB support is not compiled in");
-#endif
-
   PP->printLOG("Compressing [ " + par::compress_filename + " ]...\n");
   ZInput zin( par::compress_filename , false );
   ZOutput zout( par::compress_filename+".gz", true );
@@ -224,10 +205,6 @@ void fileCompress()
 void fileUncompress()
 {
 
-#ifndef WITH_ZLIB
-  error("ZLIB support is not compiled in");
-#endif
-      
   PP->printLOG("Uncompressing [ " + par::compress_filename + " ]...\n");
 
   int s = par::compress_filename.size();

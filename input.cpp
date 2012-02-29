@@ -1317,6 +1317,240 @@ bool Plink::readCovariateFile()
   return true;
 }
 
+bool Plink::readNumericFile()
+{
+
+  // This will set individuals as missing if they have a missing value
+  // for the covariate, or do not appear in the file
+  
+  
+  ifstream NUMERIC(par::nlist_filename.c_str(), ios::in);
+  
+  
+  map<string,Individual*> uid;
+  map<string,Individual*>::iterator ii;
+  set<Individual*> hasNumeric;
+
+  for (int i=0; i<sample.size(); i++)
+    {
+      uid.insert(make_pair(sample[i]->fid+"_"+sample[i]->iid,sample[i]));
+    }
+
+  // If need (for later selection) keep explicit track of what is missing
+  map<Individual*, vector<bool> > isMissing;
+  map<Individual*,bool> originalPersonMissingStatus;
+
+  par::nlist_number = -1;
+
+  int nvalid=0;
+  while (!NUMERIC.eof())
+    {
+
+      string pfid, piid;
+      vector_t nlist;
+
+      char nline[par::MAX_LINE_LENGTH];
+      NUMERIC.getline(nline,par::MAX_LINE_LENGTH,'\n');
+      
+      // convert to string
+      string sline = nline;
+      if (sline=="") continue;
+      
+      string buf; 
+      stringstream ss(sline); 
+      vector<string> tokens; 
+      while (ss >> buf)
+	tokens.push_back(buf);
+      
+      if ( par::nlist_number < 0 ) 
+	{
+	  par::nlist_number = tokens.size() - 2;
+	  // Assign default headers (can be overwritten)
+	  nlistname.resize(par::nlist_number);
+	  for (int c=0; c<par::nlist_number; c++)
+	    nlistname[c] = "NUM"+int2str(c+1);	  
+	}
+      else if (tokens.size() != par::nlist_number + 2 ) 
+	{
+	  printLOG("Line:\n"+sline+"\n");
+	  NUMERIC.close();
+	  return false;
+	} 
+      
+      pfid = tokens[0];
+      piid = tokens[1];
+      
+      ii = uid.find(pfid+"_"+piid);
+      if (ii != uid.end() )
+	{
+	  Individual * person = ii->second;
+	  
+	  // Track individual numeric attribute missing status
+	  person->nlistMissing.resize(par::nlist_number);
+	  
+	  // Store original missingness status for this person
+	  originalPersonMissingStatus.insert(make_pair( person, person->missing ));
+
+	  vector<bool> missing_status;
+	  
+	  // Were any missing/bad values?
+	  bool okay = true;
+
+	  // Add numeric attribute values to nlist
+	  person->nlist.clear();
+	  for (int c=2; c<par::nlist_number+2; c++)
+	    {
+	      double t = 0;
+	      if ( ! from_string<double>( t, tokens[c], std::dec ) )
+		okay = false;
+	      person->nlist.push_back( t );
+	    }
+	  
+	  // Note that we've seen a numeric attribute for this individual
+	  hasNumeric.insert(person);
+	  	  
+	  for (int c=0; c<par::nlist_number; c++)
+	    {
+	      if ( tokens[c+2] == par::missing_phenotype )
+		{
+		  okay = false;
+		  missing_status.push_back(false);
+		  person->nlistMissing[c] = true;
+		}
+	      else
+		{
+		  missing_status.push_back(true);
+		  person->nlistMissing[c] = false;
+		}
+	    }
+	  
+	  if (!okay)
+	    person->missing = true;
+	  else
+	    nvalid++;
+
+	  // Record, if we will use this below
+	  if ( par::nlist_selection )
+	    isMissing.insert(make_pair( person, missing_status ));
+	  
+	}
+      else if ( pfid == "FID" && piid == "IID" )
+	{
+	  // This is a header row -- read in numeric attribute names
+	  for (int c=0; c<par::nlist_number; c++)
+	    nlistname[c] = tokens[c+2];
+	}
+    }
+  NUMERIC.close();
+
+
+  
+  
+  // Set to missing any individuals for who we did not see the numeric
+  // attributes.  But also fill their numeric list with missing values
+
+  vector<Individual*>::iterator person = sample.begin();
+  vector<bool> dummy_missing_status(n,false);
+  while ( person != sample.end() )
+    {
+      if ( hasNumeric.find( *person ) == hasNumeric.end() )
+	{
+	  (*person)->missing = true;
+	  (*person)->nlist.clear();
+	  (*person)->nlist.resize(par::nlist_number, -9 );
+	  (*person)->nlistMissing.clear();
+	  (*person)->nlistMissing.resize(par::nlist_number, true );
+	  
+	  if ( par::nlist_selection )
+	    isMissing.insert(make_pair( (*person), dummy_missing_status ));
+	}
+      person++;
+    }
+  
+
+  printLOG("Reading " 
+	   + int2str(par::nlist_number) 
+	   + " numeric attributes from [ " 
+	   + par::nlist_filename 
+	   + " ] with ");
+  printLOG("nonmissing values for "
+	   +int2str(nvalid)
+	   +" individuals\n");
+  
+
+  /////////////////////////////////////////////////////////
+  // Do we actually want to keep all these numeric attributes?
+  
+  if ( par::nlist_selection_number || par::nlist_selection_name )
+    {
+      vector<int> numlist;
+      if ( par::nlist_selection_number )
+	{
+	  NList nl(par::nlist_number);
+	  numlist = nl.deparseNumberList(par::nlist_selection_string);
+	}
+      else
+	{
+	  map<string,int> mapping;
+	  for (int c=0; c<par::nlist_number; c++)
+	    mapping.insert(make_pair( nlistname[c],c));
+	  NList nl(par::nlist_number);
+	  numlist = nl.deparseStringList(par::nlist_selection_string,&mapping);
+	}
+      
+      int nvalid = 0;
+      for (int i=0; i<n; i++)
+	{
+	  Individual * person = sample[i];
+
+	  vector_t tmp = person->nlist;
+	  vector<bool> tmpMissing = person->nlistMissing;
+
+	  person->nlist.clear();
+	  person->nlistMissing.clear();
+
+	  // Reset per-person missing code
+	  person->missing = originalPersonMissingStatus.find( person )->second;
+	  
+	  vector<bool> missing_status = isMissing.find( person )->second;
+
+	  bool okay = true;
+	  for (int c=0; c<numlist.size(); c++)
+	    {
+	      person->nlist.push_back( tmp[ numlist[c] ] );
+	      person->nlistMissing.push_back( tmpMissing[ numlist[c] ] );
+
+	      if ( ! missing_status[numlist[c]] )
+		{ 
+		  person->missing = true;
+		  okay = false; 
+		}
+	    }
+	  
+	  if ( okay ) nvalid++;
+	}
+
+      // Reset sample-wide values (names, number)
+
+      vector<string> tmp = nlistname;
+      nlistname.clear();
+      for (int c=0; c<numlist.size(); c++)
+	nlistname.push_back( tmp[ numlist[c] ] );
+
+      printLOG("Selected subset of " + int2str(numlist.size()) + " from " 
+	       + int2str(par::nlist_number) + " numeric attributes\n");
+      
+      par::nlist_number = numlist.size();
+      
+      printLOG("For these, nonmissing numeric attribute values for "
+	       +int2str(nvalid)+" individuals\n");
+  
+
+    }
+
+
+  return true;
+}
  
 bool Plink::readCovListFile()
 {

@@ -232,12 +232,14 @@ bool par::read_bitfile = false;
 
 bool par::pheno_file = false;
 bool par::covar_file = false;
+bool par::numeric_file = false;
 bool par::clist = false;
 bool par::no_show_covar = false;
 bool par::dump_covar = false;
 bool par::dump_covar_with_phenotype = false;
 bool par::dump_covar_dummy_coding = false;
 bool par::filter_on_covar = false;
+int par::nlist_number = 0;
 int par::clist_number = 0;
 int par::plist_number = 0;
 
@@ -258,6 +260,11 @@ bool par::make_pheno = false;
 bool par::make_pheno_present = false;
 
 bool par::dump_clst = false;
+
+bool par::nlist_selection = false;
+bool par::nlist_selection_name = false;
+bool par::nlist_selection_number = false;
+string par::nlist_selection_string = "";
 
 bool par::clist_selection = false;
 bool par::clist_selection_name = false;
@@ -282,6 +289,7 @@ bool   par::number_list_positive = true;
 
 string par::pheno_filename = "plink.phe";
 string par::covar_filename = "plink.cov";
+string par::nlist_filename = "plink.num";
 string par::clist_filename = "plink.cov";
 string par::filter_filename = "plink.cov";
 

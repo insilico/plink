@@ -5,10 +5,7 @@
 #include <vector>
 #include <fstream>
 
-
-#ifdef WITH_ZLIB
 #include "zfstream.h"
-#endif
 
 using namespace std;
 
@@ -22,12 +19,7 @@ class ZInput
   bool compressed;  
   char buf[MAX_LINE_LENGTH];
 
-#ifdef WITH_ZLIB
   gzifstream zinf;
-#else
-  ifstream zinf;
-#endif
-
   ifstream inf;
 
  public:
@@ -45,12 +37,7 @@ class ZInput
 class ZOutput
 {
 
-#ifdef WITH_ZLIB
   gzofstream zoutf;
-#else
-  ofstream zoutf;
-#endif
-
   ofstream outf;
 
   string filename;

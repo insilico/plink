@@ -1,0 +1,10 @@
+2012-02-26, v1.07-is
+In Silico modifications:
+* Addition of complete Autotools build system (./configure && make &&
+make install)
+* Creation of PLINK library (libplink) that exposes functionality that
+may be imported by third-party software
+* OpenMP support in epistasis calculation
+* Numeric attribute support (currently only available in library)
+2009-10-10, v1.07 
+* latest public release of PLINK

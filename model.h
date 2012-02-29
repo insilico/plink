@@ -52,6 +52,7 @@ class Model {
   void addSexEffect();
   bool isSexInModel();
   void addCovariate(int);
+  void addNumeric(int);
   void addInteraction(int,int);
   void buildDesignMatrix();  
   bool checkVIF();
@@ -108,7 +109,8 @@ class Model {
 	       SEX, 
 	       COVARIATE, 
 	       INTERACTION,
-               QFAM };
+               QFAM, 
+  			NUMERIC  };
 
   
   double buildIntercept();
@@ -117,6 +119,7 @@ class Model {
   double buildHaplotype(int, int);
   double buildSex(Individual *);
   double buildCovariate(Individual *, int);
+  double buildNumeric(Individual *, int);
   double buildInteraction(Individual *, int, vector_t &);
   double buildQFAM(Individual *);
   
@@ -140,6 +143,10 @@ class Model {
   // List of covariates (clist)
 
   vector<int> covariate;
+
+  // List of numeric attributes (nlist)
+
+  vector<int> numeric;
 
   // List of pairwise interactions
   // ( indexing previously specified components, 1,2,..)

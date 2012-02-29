@@ -1,0 +1,29 @@
+# the built executable
+plink
+plink.exe
+# netbeans project data
+nbproject
+# vim swap files
+*.swp
+# configure output
+config.log
+config.status
+# object files
+*.o
+*.lo
+# libraries
+*.la
+# autoconf build directories
+.deps
+.libs
+# autotools files
+Makefile
+Makefile.in
+configure
+build-aux
+aclocal.m4
+stamp-h1
+libtool
+autom4te.cache
+# CTags files for vim
+tags
