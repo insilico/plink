@@ -1,4 +1,4 @@
-2012-02-26, v1.07-is
+2012-02-29, v1.07-is
 In Silico modifications:
 * Addition of complete Autotools build system (./configure && make &&
 make install)
