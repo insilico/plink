@@ -24,14 +24,15 @@ For more details, visit the PLINK
 The latest stable source release of PLINK (1.07) has been modified by our 
 research group, [In Silico](http://insilico.utulsa.edu).  All of the 
 modifications are licensed GPLv2, same as PLINK.  Our changes,
-also highlighted in the Changelog file, are:
+also highlighted in the ChangeLog file, are:
 
-* Addition of a complete Autotools build system (./configure && make &&
-make install)
+* Addition of a complete Autotools build system (`./configure && make &&
+make install`)
 * Creation of PLINK library (libplink) that exposes functionality that
 may be imported by third-party software
 * OpenMP support in epistasis calculation
 * Numeric attribute support (currently only available in library)
+* zlib is now a required library
 
 ### Dependencies ###
 * The libz/zlib compression library is required, but this is installed by default
@@ -49,6 +50,7 @@ To compile this code, a GNU toolchain and suitable environment are required.
 GNU g++ has been used to successfully compile the code.
 
 We have successfully built and run PLINK on:
+
 * Linux (64-bit Ubuntu) (gcc-4.6)
 * Mac (10.6 - 10.7) (gcc-4.2.1)
 * Windows 7 (32-bit) using the [MinGW](http://www.mingw.org) compiler system
@@ -64,9 +66,9 @@ standard
     ./configure && make && sudo make install
 
 will generate the Makefile, compile and link the code, and copy the objects to
-the installation directory (default of /usr/local).  As is convention, headers
-are installed in $PREFIX/include, binary in $PREFIX/bin, and the library in
-$PREFIX/lib.
+the installation directory (default of `/usr/local`).  As is convention, headers
+are installed in `$PREFIX/include`, binary in `$PREFIX/bin`, and the library in
+`$PREFIX/lib`.
 
 The PLINK library (libplink) can be used to use PLINK functionality in
 third-party code.  See our Encore project for a good example of this.
