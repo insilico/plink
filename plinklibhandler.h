@@ -29,7 +29,7 @@ class PlinkHandler {
 		// read plaintext file
 		void readPedFile();
 		// read numeric file
-		void readNumFile(string numericfile);
+		void readNumFile(string numericfile, bool numOnly = false);
 		// initialize Plink data vars, check for dupes, filter SNPs
 		void initData();
 		// set individual major mode

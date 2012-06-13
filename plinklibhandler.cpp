@@ -81,10 +81,10 @@ void PlinkHandler::readPedFile() {
 }
 
 // read numeric file
-void PlinkHandler::readNumFile(string numericfile) {
+void PlinkHandler::readNumFile(string numericfile, bool numOnly) {
 	par::numeric_file = true;
 	par::nlist_filename = numericfile;
-	if(!PP->readNumericFile()) error("Error: Problem reading the numeric attributes");
+	if(!PP->readNumericFile(numOnly)) error("Error: Problem reading the numeric attributes");
 }
 
 // read covariate file

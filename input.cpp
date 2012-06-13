@@ -1317,7 +1317,7 @@ bool Plink::readCovariateFile()
   return true;
 }
 
-bool Plink::readNumericFile()
+bool Plink::readNumericFile(bool numOnly)
 {
 
   // This will set individuals as missing if they have a missing value
@@ -1335,7 +1335,7 @@ bool Plink::readNumericFile()
     {
       uid.insert(make_pair(sample[i]->fid+"_"+sample[i]->iid,sample[i]));
     }
-
+  
   // If need (for later selection) keep explicit track of what is missing
   map<Individual*, vector<bool> > isMissing;
   map<Individual*,bool> originalPersonMissingStatus;
@@ -1379,8 +1379,17 @@ bool Plink::readNumericFile()
       
       pfid = tokens[0];
       piid = tokens[1];
-      
-      ii = uid.find(pfid+"_"+piid);
+
+	  // for numeric only create a new individual
+	  if (numOnly && !( pfid == "FID" && piid == "IID")) {
+	  	  Individual * numoPerson = new Individual;
+	  	  numoPerson->fid = pfid;
+	  	  numoPerson->iid = piid;
+	  	  sample.push_back(numoPerson);
+	  	  uid.insert(make_pair(pfid + "_" + piid, numoPerson));
+	  }
+	  
+	  ii = uid.find(pfid+"_"+piid);
       if (ii != uid.end() )
 	{
 	  Individual * person = ii->second;
@@ -1443,8 +1452,8 @@ bool Plink::readNumericFile()
     }
   NUMERIC.close();
 
-
   
+
   
   // Set to missing any individuals for who we did not see the numeric
   // attributes.  But also fill their numeric list with missing values
