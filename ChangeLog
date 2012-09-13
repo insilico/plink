@@ -1,3 +1,6 @@
+2012-09-12, v1.07-is2
+* Add support for regression of a numeric file without requiring a
+GWAS (SNP) file
 2012-02-29, v1.07-is
 In Silico modifications:
 * Addition of complete Autotools build system (./configure && make &&
