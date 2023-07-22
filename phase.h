@@ -11,7 +11,7 @@
 //////////////////////////////////////////////////////////////////
 
 
-#ifndef __HAPPHASE_H_
+#ifndef __HAPPHASE_H__
 #define __HAPPHASE_H__
 
 class HaploWindow;

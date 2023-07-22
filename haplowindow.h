@@ -10,7 +10,7 @@
 //////////////////////////////////////////////////////////////////
 
 
-#ifndef __HAPWINDOW_H_
+#ifndef __HAPWINDOW_H__
 #define __HAPWINDOW_H__
 
 class HaploPhase;
